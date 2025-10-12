@@ -44,12 +44,12 @@ export default function SortableItem({ id, boardId, isAnyDragging }) {
         >
             <AttractionItem
                 image="https://i.pinimg.com/736x/21/83/ab/2183ab07ff2e0e561e0e0738705d4343.jpg"
-                title="Historical Landmark"
                 duration="2 hours"
                 timeline="2 hours"
                 timeOfDay="Morning"
                 location="Old Town, Rome"
                 description="Explore one of Rome's most iconic landmarks, rich with ancient history and classical architecture dating back to the Roman Empire."
+                title={id}
                 isDragging={isDragging || isAnyDragging}
             />
         </div>

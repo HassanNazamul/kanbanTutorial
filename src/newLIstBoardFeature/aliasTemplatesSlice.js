@@ -1,6 +1,5 @@
 // aliasTemplatesSlice.js
 import { createSlice } from '@reduxjs/toolkit'
-import { nanoid } from '@reduxjs/toolkit'
 
 const initialState = {
     // List of boards available to be copied into the main Kanban view
@@ -8,12 +7,12 @@ const initialState = {
         {
             id: 'template-1',
             title: 'New Project Template',
-            items: [nanoid(), nanoid()] // Pre-populate with item IDs
+            items: ["item-20", "item-21"] // Pre-populate with item IDs
         },
         {
             id: 'template-2',
             title: 'Quick To-Do List',
-            items: [nanoid()]
+            items: ["item-22"]
         },
         // ... more templates
     ],

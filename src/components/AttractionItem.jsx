@@ -37,30 +37,26 @@ export const AttractionItem = ({
         }}>
             <PopoverTrigger asChild>
                 <div
-                    className="flex items-center justify-between py-3 border-b last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors"
+                    className="grid grid-cols-12 items-center gap-2 p-1 border-b last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors " 
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
                     style={{
                         pointerEvents: isDragging ? 'none' : 'auto'
                     }}
                 >
-                    {/* Left Side */}
-                    <div className="flex items-center gap-3">
+                    {/* Column 1: Image (spans 3 of 12 columns) */}
+                    <div className="col-span-4">
                         <img
                             src={image}
                             alt={title}
                             className="w-10 h-10 rounded-full object-cover"
                         />
-                        <div>
-                            <p className="font-medium">{title}</p>
-                            <p className="text-sm text-gray-500">{duration}</p>
-                        </div>
                     </div>
 
-                    {/* Right Side */}
-                    <div className="text-right text-sm">
-                        <p className="font-medium">{timeline}</p>
-                        <p className="text-gray-500">{timeOfDay}</p>
+                    {/* Column 2: Text Content (spans 9 of 12 columns) */}
+                    <div className="col-span-8 min-w-0"> 
+                        <p className="font-medium text-sm truncate text-right">{title}</p> 
+                        <p className="text-xs text-gray-500 text-right">{duration}</p>
                     </div>
                 </div>
             </PopoverTrigger>

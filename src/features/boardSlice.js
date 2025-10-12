@@ -53,10 +53,16 @@ const initialState = {
             id: 'board5',
             title: 'Board Five',
             items: ['item-13'],
-        }
+        },
+        board6: {
+            id: 'board6',
+            title: 'Board Six',
+            items: ['item-16'],
+        },
+
     },
     // array that defines the visual/order of boards
-    boardOrder: ['board1', 'board2', 'board3', 'board4', 'board5'],
+    boardOrder: ['board1', 'board2', 'board3', 'board4', 'board5', 'board6'],
 }
 
 

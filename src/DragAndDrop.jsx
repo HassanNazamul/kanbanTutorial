@@ -146,9 +146,7 @@ function DragAndDrop() {
   }
 
   return (
-    <div style={{ padding: 24 }}>
-      <h1>DnD Kit + RTK (Horizontal Boards + Smooth Drag)</h1>
-
+    <div style={{ padding: 10 }}>
       <DndContext
         collisionDetection={rectIntersection}
         measuring={{
@@ -163,13 +161,14 @@ function DragAndDrop() {
         <SortableContext items={boardOrder} strategy={rectSortingStrategy}>
           <div style={{
             display: 'flex',
-            gap: 20,
+            gap: 10,
             flexWrap: 'wrap',
             justifyContent: 'flex-start',
             alignItems: 'flex-start'
           }}>
             {boardOrder.map((boardId) => (
-              boards[boardId] && <Board
+              boards[boardId] && 
+              <Board
                 key={boardId}
                 board={boards[boardId]}
                 isAnyDragging={isAnyDragging}
