@@ -99,19 +99,21 @@ const boardsSlice = createSlice({
         moveItemAcrossBoards: (state, action) => {
             const { fromBoardId, toBoardId, activeId, newIndex } = action.payload
 
-            // get references to the items arrays for source and target boards
+            // defensive: if board ids are invalid, do nothing but log for debugging
+            if (!state.boards[fromBoardId] || !state.boards[toBoardId]) {
+                console.warn('moveItemAcrossBoards: invalid board id(s)', { fromBoardId, toBoardId, activeId })
+                return
+            }
+
             const from = state.boards[fromBoardId].items
             const to = state.boards[toBoardId].items
 
-            // find and remove the activeId from the source board if present
             const idx = from.indexOf(activeId)
             if (idx !== -1) from.splice(idx, 1)
 
-            // if newIndex is invalid or beyond bounds, push to end
             if (newIndex === undefined || newIndex === -1 || newIndex >= to.length) {
-                to.push(activeId) // append
+                to.push(activeId)
             } else {
-                // otherwise insert at the specified position
                 to.splice(newIndex, 0, activeId)
             }
         },
