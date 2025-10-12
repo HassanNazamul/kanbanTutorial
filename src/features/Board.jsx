@@ -5,6 +5,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { useDroppable } from '@dnd-kit/core' // added
 import { reserveBoardToTemplate } from '@/newLIstBoardFeature/thunk'
 import { useDispatch } from 'react-redux'
+import { Card, CardContent } from "@/components/ui/card"
 
 
 export default function Board({ board }) {
@@ -13,10 +14,6 @@ export default function Board({ board }) {
 
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: board.id })
 
-    // const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    //     id: board.id,
-    //     animateLayoutChanges: (args) => defaultAnimateLayoutChanges({ ...args, wasDragging: true }),
-    // })
 
     // added droppable so empty boards expose sortable.containerId on "over"
     const { setNodeRef: setDroppableNodeRef } = useDroppable({
@@ -49,40 +46,39 @@ export default function Board({ board }) {
 
 
     return (
-        <div ref={setNodeRef} style={style}>
+        <Card ref={setNodeRef} style={style}{...attributes} {...listeners} className="overflow-hidden rounded-2xl shadow-lg py-0 transition-transform duration-300 hover:scale-[1.02] hover:shadow-2xl">
 
-            <div {...attributes} {...listeners} style={{ cursor: 'grab', padding: '6px 0' }}>
-                <span>:::</span>
 
-                <strong>{board.title}</strong>
+            {/* Main Image */}
+            <div className="h-36 w-full">
+                <img
+                    src="https://images.unsplash.com/photo-1600585152220-90363fe7e115?q=80&w=1000&auto=format&fit=crop"
+                    alt="Hotel"
+                    className="h-full w-full object-cover"
+                />
             </div>
 
+            {/* Content */}
+            <CardContent className="px-4 pb-2">
+                {/* Header */}
+                <div className="flex justify-between mb-2">
+                    <h3 className="font-semibold text-gray-700 text-sm">
+                        Time to Cover Attraction
+                    </h3>
+                    <h3 className="font-semibold text-gray-700 text-sm">Timeline</h3>
+                </div>
 
-            {/* New Reserve/Remove Button */}
-            <button
-                onClick={handleReserveBoard}
-                title="Remove and Reserve to Template List"
-                style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'red',
-                    cursor: 'pointer',
-                    fontSize: '1.2em',
-                    padding: '4px',
-                    marginLeft: '10px'
-                }}
-            >
-                &times; {/* Using the HTML times character for a close/remove icon */}
-            </button>
+                {/* Items */}
+                <div className="divide-y" ref={setDroppableNodeRef}>
 
-            <div ref={setDroppableNodeRef} style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8, flexGrow: 1, minHeight: 50 }}>
+                    <SortableContext items={board.items} strategy={verticalListSortingStrategy} id={board.id}>
+                        {board.items.map((itemId) => (
+                            <SortableItem key={itemId} id={itemId} />
+                        ))}
+                    </SortableContext>
 
-                <SortableContext items={board.items} strategy={verticalListSortingStrategy} id={board.id}>
-                    {board.items.map((itemId) => (
-                        <SortableItem key={itemId} id={itemId} />
-                    ))}
-                </SortableContext>
-            </div>
-        </div>
+                </div>
+            </CardContent>
+        </Card>
     )
 }
