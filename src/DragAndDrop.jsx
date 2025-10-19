@@ -186,8 +186,16 @@ function DragAndDrop() {
                 ))}
               </SortableContext>
             </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+            {/* <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white p-1 rounded-full shadow-md">
+              ‹
+            </CarouselPrevious>
+            <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white p-1 rounded-full shadow-md">
+              ›
+            </CarouselNext> */}
           </Carousel>
-          {/* ✨ CHANGE: New container for the buttons, placed below the Carousel */}
+
 
         </SortableContext>
         <DragOverlay>
