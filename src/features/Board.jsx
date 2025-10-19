@@ -5,6 +5,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { useDispatch } from 'react-redux'
 import { reserveBoardToTemplate } from '@/newLIstBoardFeature/thunk'
 import { Card, CardContent } from '@/components/ui/card'
+import { GripHorizontal, Trash2 } from 'lucide-react'
 
 export default function Board({ board, isAnyDragging }) {
     const dispatch = useDispatch()
@@ -42,11 +43,34 @@ export default function Board({ board, isAnyDragging }) {
             ref={setNodeRef}
             data-board-id={board.id}
             data-board-type="draggable-board"
-            {...attributes}
-            {...listeners}
         >
 
-            <Card className="overflow-hidden gap-2 rounded-2xl shadow-lg p-2 transition-transform duration-300 hover:scale-[1.02] hover:shadow-2xl">
+            <Card className="w-[180px] overflow-hidden gap-1 rounded-2xl shadow-lg p-2 transition-transform duration-300 hover:scale-[1.02] hover:shadow-2xl">
+
+
+                {/* --- HEADER SECTION (With Drag Handle and Button) --- */}
+                <div className="flex justify-between items-center px-3">
+                    {/* Drag Handle */}
+                    <div
+                        {...attributes}
+                        {...listeners}
+                        className="cursor-grab text-gray-500 p-1"
+                        style={{ touchAction: 'none' }} // Recommended for touch devices
+                    >
+                        <GripHorizontal className="h-5 w-5" />
+                    </div>
+
+                    {/* Delete Button */}
+                    <button
+                        onClick={handleReserveBoard}
+                        onMouseDown={(e) => e.stopPropagation()} // Extra precaution
+                        className="bg-transparent border-none text-gray-500 hover:text-red-500 cursor-pointer p-1 rounded-md"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </button>
+                </div>
+
+
                 {/* Main Image */}
                 <div className="h-20 w-full rounded-t-2xl overflow-hidden">
                     <img
@@ -57,25 +81,18 @@ export default function Board({ board, isAnyDragging }) {
                 </div>
 
                 {/* Content */}
-                <CardContent className="p-1 border-t">
+                <CardContent className="p-1">
                     {/* Header */}
                     <h5 className="font-semibold text-gray-700 text-xs text-center">Attraction Timeline</h5>
 
                     {/* Items */}
-                    <div className="divide-y"
+                    <div className="divide-y flex-1 flex flex-col gap-2 rounded-md transition-all duration-200 ease-in-out relative border-dashed ${isOver 
+            ? 'border-[3px] border-blue-500 bg-blue-500/5' 
+            : 'border-2 border-transparent bg-transparent'
+        }"
+
                         ref={setDroppableNodeRef}
-                        style={{
-                            flex: 1,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 8,
-                            border: isOver ? '3px dashed #007bff' : '2px dashed transparent',
-                            borderRadius: '6px',
-                            padding: isOver ? '8px' : '4px',
-                            backgroundColor: isOver ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
-                            transition: 'all 0.2s ease',
-                            position: 'relative',
-                        }}
+
                     >
                         <SortableContext
                             id={board.id}
@@ -92,16 +109,9 @@ export default function Board({ board, isAnyDragging }) {
                             ))}
                         </SortableContext>
 
-                        {/* Empty state indicator */}
+                        {/* --- EMPTY STATE (CSS Converted to Tailwind) --- */}
                         {board.items.length === 0 && (
-                            <div style={{
-                                textAlign: 'center',
-                                color: '#999',
-                                padding: '12px 14px',
-                                fontStyle: 'italic',
-                                border: '1px dashed #ddd',
-                                borderRadius: '12px',
-                            }}>
+                            <div className="text-center text-gray-500 text-sm italic py-3 px-3.5 border border-dashed border-gray-300 rounded-xl">
                                 Drop items here
                             </div>
                         )}
