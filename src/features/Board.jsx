@@ -1,7 +1,6 @@
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { useDroppable } from '@dnd-kit/core'
 import SortableItem from './SortableItem'
-import { CSS } from '@dnd-kit/utilities'
 import { useDispatch } from 'react-redux'
 import { reserveBoardToTemplate } from '@/newLIstBoardFeature/thunk'
 import { Card, CardContent } from '@/components/ui/card'
@@ -109,7 +108,7 @@ export default function Board({ board, isAnyDragging }) {
                             ))}
                         </SortableContext>
 
-                        {/* --- EMPTY STATE (CSS Converted to Tailwind) --- */}
+                        {/* --- EMPTY STATE --- */}
                         {board.items.length === 0 && (
                             <div className="text-center text-gray-500 text-sm italic py-3 px-3.5 border border-dashed border-gray-300 rounded-xl">
                                 Drop items here

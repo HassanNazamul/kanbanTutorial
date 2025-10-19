@@ -5,6 +5,7 @@ import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { moveBoard, moveItemWithinBoard, moveItemAcrossBoards } from './features/boardSlice'
 import SortableItem from './features/SortableItem'
 import { DndContext, DragOverlay, rectIntersection } from '@dnd-kit/core'
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 function DragAndDrop() {
   const { boards, boardOrder } = useSelector((state) => state.boards)
@@ -159,22 +160,35 @@ function DragAndDrop() {
         onDragCancel={() => { setActiveId(null); setActiveType(null) }}
       >
         <SortableContext items={boardOrder} strategy={rectSortingStrategy}>
-          <div style={{
-            display: 'flex',
-            gap: 10,
-            flexWrap: 'wrap',
-            justifyContent: 'flex-start',
-            alignItems: 'flex-start'
-          }}>
-            {boardOrder.map((boardId) => (
-              boards[boardId] && 
-              <Board
-                key={boardId}
-                board={boards[boardId]}
-                isAnyDragging={isAnyDragging}
-              />
-            ))}
-          </div>
+          {/* ✨ CHANGE: Replaced the div container with the Carousel component */}
+          <Carousel
+            opts={{
+              align: "start",
+              // This is the crucial part to prevent drag conflicts!
+              watchDrag: activeId === null,
+            }}
+            className="w-full"
+            orientation="horizontal"
+          >
+            <CarouselContent className="-ml-4"> {/* Negative margin to align items correctly */}
+
+              <SortableContext items={boardOrder} strategy={rectSortingStrategy}>
+                {boardOrder.map((boardId) => (
+                  boards[boardId] && (
+                    // ✨ CHANGE: Each board is now a CarouselItem
+                    <CarouselItem key={boardId} className="pl-4 basis-auto">
+                      <Board
+                        board={boards[boardId]}
+                        isAnyDragging={isAnyDragging}
+                      />
+                    </CarouselItem>
+                  )
+                ))}
+              </SortableContext>
+            </CarouselContent>
+          </Carousel>
+          {/* ✨ CHANGE: New container for the buttons, placed below the Carousel */}
+
         </SortableContext>
         <DragOverlay>
           {activeId && activeType === 'item' ? (
