@@ -7,9 +7,7 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar"
 import DragAndDrop from '@/DragAndDrop';
-import HorizontalCalendar from '@/calendar/HorizontalCalender';
 import TemplateBoardList from '@/newLIstBoardFeature/TemplateBoard';
-import CoupledCarousels from '@/calendar/syncarousel';
 
 export default function Dashboard1() {
     return (
@@ -23,7 +21,6 @@ export default function Dashboard1() {
                     <div className="grid auto-rows-min gap-2 px-10 md:grid-cols-1">
                         <div className="w-full bg-muted/50 aspect-[16/2] rounded-xl" >
                             <DragAndDrop />
-                            {/* <CoupledCarousels /> */}
                         </div>
                     </div>
                 </div>
