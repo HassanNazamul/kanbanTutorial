@@ -193,7 +193,6 @@ function DragAndDrop() {
           </Carousel>
 
 
-        </SortableContext>
         <DragOverlay>
           {activeId && activeType === 'item' ? (
             <SortableItem id={activeId} isAnyDragging={isAnyDragging} />
