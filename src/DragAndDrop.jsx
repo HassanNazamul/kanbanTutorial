@@ -6,6 +6,7 @@ import { moveBoard, moveItemWithinBoard, moveItemAcrossBoards } from './features
 import SortableItem from './features/SortableItem'
 import { DndContext, DragOverlay, rectIntersection } from '@dnd-kit/core'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import HorizontalCalendar from './calendar/HorizontalCalender'
 
 function DragAndDrop() {
   const { boards, boardOrder } = useSelector((state) => state.boards)
@@ -148,6 +149,9 @@ function DragAndDrop() {
 
   return (
     <div style={{ padding: 10 }}>
+
+      <HorizontalCalendar />
+
       <DndContext
         collisionDetection={rectIntersection}
         measuring={{
@@ -188,12 +192,6 @@ function DragAndDrop() {
             </CarouselContent>
             <CarouselPrevious />
             <CarouselNext />
-            {/* <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white p-1 rounded-full shadow-md">
-              ‹
-            </CarouselPrevious>
-            <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white p-1 rounded-full shadow-md">
-              ›
-            </CarouselNext> */}
           </Carousel>
 
 
