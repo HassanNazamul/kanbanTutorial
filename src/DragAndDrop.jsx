@@ -6,6 +6,7 @@ import { moveBoard, moveItemWithinBoard, moveItemAcrossBoards } from './features
 import SortableItem from './features/SortableItem'
 import { DndContext, DragOverlay, rectIntersection } from '@dnd-kit/core'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import HorizontalCalendar from './calendar/HorizontalCalender'
 
 function DragAndDrop() {
   const { boards, boardOrder } = useSelector((state) => state.boards)
@@ -148,6 +149,9 @@ function DragAndDrop() {
 
   return (
     <div style={{ padding: 10 }}>
+
+      <HorizontalCalendar />
+
       <DndContext
         collisionDetection={rectIntersection}
         measuring={{
@@ -170,23 +174,26 @@ function DragAndDrop() {
         >
           <CarouselContent className="-ml-4"> {/* Negative margin to align items correctly */}
 
-            <SortableContext items={boardOrder} strategy={rectSortingStrategy}>
-              {boardOrder.map((boardId) => (
-                boards[boardId] && (
-                  // ✨ CHANGE: Each board is now a CarouselItem
-                  <CarouselItem key={boardId} className="pl-4 basis-auto">
-                    <Board
-                      board={boards[boardId]}
-                      isAnyDragging={isAnyDragging}
-                    />
-                  </CarouselItem>
-                )
-              ))}
-            </SortableContext>
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
+              <SortableContext items={boardOrder} strategy={rectSortingStrategy}>
+                {boardOrder.map((boardId) => (
+                  boards[boardId] && (
+                    // ✨ CHANGE: Each board is now a CarouselItem
+                    <CarouselItem key={boardId} className="pl-4 basis-auto">
+                      <Board
+                        board={boards[boardId]}
+                        isAnyDragging={isAnyDragging}
+                      />
+                    </CarouselItem>
+                  )
+                ))}
+              </SortableContext>
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+
+
+        </SortableContext>
         <DragOverlay>
           {activeId && activeType === 'item' ? (
             <SortableItem id={activeId} isAnyDragging={isAnyDragging} />

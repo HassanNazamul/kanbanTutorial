@@ -39,7 +39,7 @@ export default function SortableItem({ id, boardId, isAnyDragging }) {
             ref={setNodeRef}
             {...attributes}
             {...listeners}
-            style={style}
+            style={{ ...style, touchAction: 'none' }}
             data-item-id={id}
         >
             <AttractionItem

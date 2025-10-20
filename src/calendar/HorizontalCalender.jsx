@@ -1,54 +1,101 @@
-import React, { useState, useRef, useEffect } from 'react';
-import './HorizontalCalendar.css';
-// You might use a library like 'date-fns' or 'moment' for date operations
-import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns';
+
+import React, { useState } from "react";
+import { format, addDays, eachDayOfInterval, isSameDay, startOfMonth, endOfMonth, addMonths } from "date-fns";
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+} from "@/components/ui/carousel"; // from shadcn/ui
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils"; // optional helper if using shadcn setup
 
 const HorizontalCalendar = () => {
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const calendarRef = useRef(null);
+    const [currentMonth, setCurrentMonth] = useState(new Date());
 
-    // --- Date Generation Logic ---
-    // Generate a range of dates to display (e.g., 60 days around the current date)
-    const today = new Date();
-    const startDate = addDays(today, -30);
-    const endDate = addDays(today, 30);
-    const dates = eachDayOfInterval({ start: startDate, end: endDate });
 
-    // --- Auto-Scroll Logic ---
-    // Centers the selected date element when the component loads or selectedDate changes
-    useEffect(() => {
-        if (calendarRef.current) {
-            const selectedElement = calendarRef.current.querySelector('.date-item.selected');
-            if (selectedElement) {
-                // Scroll the container so the selected element is in the middle
-                const offset = selectedElement.offsetLeft - (calendarRef.current.offsetWidth / 2) + (selectedElement.offsetWidth / 2);
-                calendarRef.current.scroll({ left: offset, behavior: 'smooth' });
-            }
-        }
-    }, [selectedDate]);
+    // Generate all days of the current month dynamically
+    const monthDays = eachDayOfInterval({
+        start: startOfMonth(currentMonth),
+        end: endOfMonth(currentMonth),
+    });
 
-    // --- Rendering ---
+    // Handlers for changing months
+    const handlePrevMonth = () => {
+        setCurrentMonth((prev) => {
+            const newMonth = addMonths(prev, -1);
+            setSelectedDate(startOfMonth(newMonth));
+            return newMonth;
+        });
+    };
+
+    const handleNextMonth = () => {
+        setCurrentMonth((prev) => {
+            const newMonth = addMonths(prev, 1);
+            setSelectedDate(startOfMonth(newMonth)); 
+            return newMonth;
+        });
+    };
+
     return (
-        <div className="horizontal-calendar-container">
-            <div className="calendar-header">
-                <h2>{format(selectedDate, 'MMMM yyyy')}</h2>
+        <div className="w-full select-none mb-1">
+            {/* Header with Month & Navigation */}
+            <div className="flex items-center justify-center gap-4 mb-2">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handlePrevMonth}
+                    className="hover:bg-gray-100"
+                >
+                    <ChevronLeft className="h-5 w-5" />
+                </Button>
+
+                <h2 className="text-md text-center w-30 font-semibold">
+                    {format(currentMonth, "MMMM yyyy")}
+                </h2>
+
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleNextMonth}
+                    className="hover:bg-gray-100"
+                >
+                    <ChevronRight className="h-5 w-5" />
+                </Button>
             </div>
 
-            <div className="calendar-reel" ref={calendarRef}>
-                {dates.map((date) => {
-                    const isSelected = isSameDay(date, selectedDate);
-                    return (
-                        <div
-                            key={date.toISOString()}
-                            className={`date-item ${isSelected ? 'selected' : ''}`}
-                            onClick={() => setSelectedDate(date)}
-                        >
-                            <div className="day-name">{format(date, 'EE')}</div>
-                            <div className="day-number">{format(date, 'd')}</div>
-                        </div>
-                    );
-                })}
-            </div>
+            {/* Horizontal Calendar Carousel */}
+            <Carousel opts={{ align: "start", loop: false }}>
+                <CarouselContent className="flex px-0">
+                    {monthDays.map((date) => {
+                        const isSelected = isSameDay(date, selectedDate);
+                        return (
+                            <CarouselItem key={date.toISOString()} className="basis-auto">
+                                <div
+                                    onClick={() => setSelectedDate(date)}
+                                    className={cn(
+                                        "flex items-center justify-center gap-2 w-[180px] h-8 rounded-xl border-2 cursor-pointer transition-all duration-200",
+                                        isSelected
+                                            ? "bg-blue-600 text-white border-blue-800 shadow-md"
+                                            : "bg-gray-100 hover:bg-gray-200 border-transparent"
+                                    )}
+                                >
+                                    <div
+                                        className={cn(
+                                            "text-xs uppercase",
+                                            isSelected ? "text-blue-100" : "text-gray-500"
+                                        )}
+                                    >
+                                        {format(date, "EE")}
+                                    </div>
+                                    <div className="text-lg font-bold">{format(date, "d")}</div>
+                                </div>
+                            </CarouselItem>
+                        );
+                    })}
+                </CarouselContent>
+            </Carousel>
         </div>
     );
 };
