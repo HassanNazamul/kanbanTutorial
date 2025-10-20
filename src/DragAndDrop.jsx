@@ -159,39 +159,34 @@ function DragAndDrop() {
         onDragEnd={handleDragEnd}
         onDragCancel={() => { setActiveId(null); setActiveType(null) }}
       >
-        <SortableContext items={boardOrder} strategy={rectSortingStrategy}>
-          {/* ✨ CHANGE: Replaced the div container with the Carousel component */}
-          <Carousel
-            opts={{
-              align: "start",
-              // This is the crucial part to prevent drag conflicts!
-              watchDrag: activeId === null,
-            }}
-            className="w-full"
-            orientation="horizontal"
-          >
-            <CarouselContent className="-ml-4"> {/* Negative margin to align items correctly */}
+        <Carousel
+          opts={{
+            align: "start",
+            // This is the crucial part to prevent drag conflicts!
+            watchDrag: activeId === null,
+          }}
+          className="w-full"
+          orientation="horizontal"
+        >
+          <CarouselContent className="-ml-4"> {/* Negative margin to align items correctly */}
 
-              <SortableContext items={boardOrder} strategy={rectSortingStrategy}>
-                {boardOrder.map((boardId) => (
-                  boards[boardId] && (
-                    // ✨ CHANGE: Each board is now a CarouselItem
-                    <CarouselItem key={boardId} className="pl-4 basis-auto">
-                      <Board
-                        board={boards[boardId]}
-                        isAnyDragging={isAnyDragging}
-                      />
-                    </CarouselItem>
-                  )
-                ))}
-              </SortableContext>
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
-
-
-        </SortableContext>
+            <SortableContext items={boardOrder} strategy={rectSortingStrategy}>
+              {boardOrder.map((boardId) => (
+                boards[boardId] && (
+                  // ✨ CHANGE: Each board is now a CarouselItem
+                  <CarouselItem key={boardId} className="pl-4 basis-auto">
+                    <Board
+                      board={boards[boardId]}
+                      isAnyDragging={isAnyDragging}
+                    />
+                  </CarouselItem>
+                )
+              ))}
+            </SortableContext>
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
         <DragOverlay>
           {activeId && activeType === 'item' ? (
             <SortableItem id={activeId} isAnyDragging={isAnyDragging} />
