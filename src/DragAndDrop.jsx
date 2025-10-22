@@ -1,14 +1,25 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import Board from './features/Board'
 import { useSelector, useDispatch } from 'react-redux'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
-import { moveBoard, moveItemWithinBoard, moveItemAcrossBoards } from './features/boardSlice'
+import { moveBoard, moveItemWithinBoard, moveItemAcrossBoards, setBoardDatesFromBase, addEmptyBoard } from './features/boardSlice'
 import SortableItem from './features/SortableItem'
 import { DndContext, DragOverlay, rectIntersection } from '@dnd-kit/core'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import HorizontalCalendar from './calendar/HorizontalCalender'
+import { parseISO } from 'date-fns'
+import { PlaceholderAttractionCard } from './components/PlaceholderAttractionCard'
 
 function DragAndDrop() {
+
+
+
+  const calendarRef = useRef(null);
+  const [testDate, setTestDate] = useState("");
+
+  const suppressSyncRef = useRef(false)
+
+
   const { boards, boardOrder } = useSelector((state) => state.boards)
   const dispatch = useDispatch()
   const [activeId, setActiveId] = useState(null)
@@ -17,8 +28,69 @@ function DragAndDrop() {
   // Determine if anything is being dragged
   const isAnyDragging = activeId !== null
 
+  // NEW: calendar & carousel API state
+  const [calendarApi, setCalendarApi] = useState(null)
+  const [cardsApi, setCardsApi] = useState(null)
+
+  useEffect(() => {
+    if (!cardsApi) return;
+
+    // listener for when user scrolls (via arrow or drag)
+    const onSelect = () => {
+      if (suppressSyncRef.current) return;    // ignore if suppression is active
+      const snapIdx = cardsApi.selectedScrollSnap();
+      const prevSnapIdx = cardsApi.previousScrollSnap();
+
+      if (snapIdx === undefined) return;
+
+      console.log("Cards carousel selected snap index:", snapIdx);
+      console.log("Cards carousel previous snap index:", prevSnapIdx);
+
+      const direction = snapIdx > prevSnapIdx ? 1 : -1;
+
+      calendarRef.current?.scrollByOffset(direction);
+    };
+
+    // Attach listener
+    cardsApi.on("select", onSelect);
+
+    // Cleanup on unmount
+    return () => {
+      cardsApi.off("select", onSelect);
+    };
+  }, [cardsApi, calendarRef]);
+
+  // NEW: central selected date state (ISO string)
+  // Initialize from the leftmost board's date if present
+  const initialSelectedISO = boardOrder && boardOrder.length > 0 && boards[boardOrder[0]] ? boards[boardOrder[0]].date : new Date().toISOString()
+  const [selectedDate, setSelectedDate] = useState(initialSelectedISO)
+
+  // When the calendar changes (via HorizontalCalendar), update board dates relative to that base
+  const handleCalendarSelectedDateChange = useCallback((dateISO) => {
+    if (suppressSyncRef.current) return;  // ignore if suppression is active
+    setSelectedDate(dateISO)
+    dispatch(setBoardDatesFromBase(dateISO))
+    console.log("Calendar selected date changed to:", dateISO)
+    if (!cardsApi) return;
+    try {
+      cardsApi.scrollTo(0)
+    } catch (err) {
+      console.warn("cardsApi scrollTo(0) failed", err)
+    }
+  }, [dispatch, cardsApi])
+
+
+  // When calendarApi is set, we can also hook into calendarApi select to keep parent in sync.
+  // However we already rely on HorizontalCalendar calling onSelectedDateChange when user clicks arrows or days,
+  // so we don't need to add another listener here unless you want Embla events processed.
+
+  // Provide setApi handlers to the Carousel components via props
+  // The Carousel will call setApi(api) when the Embla API becomes available.
+  // These setter functions will cause the useEffect above to register listeners.
+
   const handleDragEnd = (event) => {
     const { active, over } = event
+    setTimeout(() => { suppressSyncRef.current = false }, 300)
     if (!over) {
       setActiveId(null)
       setActiveType(null)
@@ -141,6 +213,7 @@ function DragAndDrop() {
   }
 
   const handleDragStart = (event) => {
+    suppressSyncRef.current = true
     setActiveId(event.active.id)
     const type = event.active.data.current?.type
     setActiveType(type)
@@ -150,7 +223,30 @@ function DragAndDrop() {
   return (
     <div style={{ padding: 10 }}>
 
-      <HorizontalCalendar />
+      <HorizontalCalendar
+        ref={calendarRef}
+        selectedDate={selectedDate}
+        onSelectedDateChange={handleCalendarSelectedDateChange}
+        setCarouselApi={setCalendarApi}
+        calendarApi={calendarApi}
+        suppressScrollRef={suppressSyncRef}
+      />
+
+      {/* <div className="flex items-center gap-2 my-4">
+        <button
+          onClick={() => calendarRef.current?.scrollByOffset(-1)}
+          className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 transition"
+        >
+          ← Prev
+        </button>
+
+        <button
+          onClick={() => calendarRef.current?.scrollByOffset(1)}
+          className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 transition"
+        >
+          Next →
+        </button>
+      </div> */}
 
       <DndContext
         collisionDetection={rectIntersection}
@@ -164,6 +260,7 @@ function DragAndDrop() {
         onDragCancel={() => { setActiveId(null); setActiveType(null) }}
       >
         <Carousel
+          setApi={setCardsApi}
           opts={{
             align: "start",
             // This is the crucial part to prevent drag conflicts!
@@ -174,23 +271,36 @@ function DragAndDrop() {
         >
           <CarouselContent className="-ml-4"> {/* Negative margin to align items correctly */}
 
-              <SortableContext items={boardOrder} strategy={rectSortingStrategy}>
-                {boardOrder.map((boardId) => (
-                  boards[boardId] && (
-                    // ✨ CHANGE: Each board is now a CarouselItem
-                    <CarouselItem key={boardId} className="pl-4 basis-auto">
-                      <Board
-                        board={boards[boardId]}
-                        isAnyDragging={isAnyDragging}
-                      />
-                    </CarouselItem>
-                  )
-                ))}
-              </SortableContext>
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
+            <SortableContext items={boardOrder} strategy={rectSortingStrategy}>
+              {boardOrder.map((boardId) => (
+                boards[boardId] && (
+                  // ✨ CHANGE: Each board is now a CarouselItem
+                  <CarouselItem key={boardId} className="pl-4 basis-auto">
+                    <Board
+                      board={boards[boardId]}
+                      isAnyDragging={isAnyDragging}
+                      suppressSyncRef={suppressSyncRef}
+                    />
+                  </CarouselItem>
+                )
+              ))}
+            </SortableContext>
+
+            {/* --- Add Placeholder Card --- */}
+            <CarouselItem key="add-placeholder" className="pl-4 basis-auto">
+              <PlaceholderAttractionCard
+                onAdd={() => {
+                  suppressSyncRef.current = true
+                  dispatch(addEmptyBoard())
+                  // allow one render cycle to complete, then re-enable sync
+                  setTimeout(() => { suppressSyncRef.current = false }, 300)
+                }}
+              />
+            </CarouselItem>
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
 
 
         <DragOverlay>

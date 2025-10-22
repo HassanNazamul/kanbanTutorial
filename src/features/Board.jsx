@@ -5,8 +5,9 @@ import { useDispatch } from 'react-redux'
 import { reserveBoardToTemplate } from '@/newLIstBoardFeature/thunk'
 import { Card, CardContent } from '@/components/ui/card'
 import { GripHorizontal, Trash2 } from 'lucide-react'
+import { parseISO, format } from 'date-fns'
 
-export default function Board({ board, isAnyDragging }) {
+export default function Board({ board, isAnyDragging, suppressSyncRef }) {
     const dispatch = useDispatch()
 
     const {
@@ -33,9 +34,15 @@ export default function Board({ board, isAnyDragging }) {
     })
 
     const handleReserveBoard = (e) => {
+        suppressSyncRef.current = true
         e.stopPropagation()
         dispatch(reserveBoardToTemplate(board.id))
+        setTimeout(() => {
+            suppressSyncRef.current = false
+        }, 300);
     }
+
+    const boardDateDisplay = board?.date ? format(parseISO(board.date), 'MMM d, yyyy') : ''
 
     return (
         <div
@@ -67,6 +74,11 @@ export default function Board({ board, isAnyDragging }) {
                     >
                         <Trash2 className="h-4 w-4" />
                     </button>
+
+                    {/* Date label */}
+                    <div className="text-xs text-gray-500 mt-1">
+                        {boardDateDisplay}
+                    </div>
                 </div>
 
 
