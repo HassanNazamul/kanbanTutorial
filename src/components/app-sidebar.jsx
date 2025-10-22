@@ -148,6 +148,8 @@ export function AppSidebar({
 }) {
   return (
     <Sidebar variant="floating" collapsible="icon" {...props}>
+
+      {/* //Logo area and redirection home page */}
       <SidebarHeader>
         <SidebarMenu>
 
