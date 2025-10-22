@@ -64,54 +64,54 @@ const data = {
       icon: UsersIcon,
     },
   ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: CameraIcon,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: FileTextIcon,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: FileCodeIcon,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-  ],
+  // navClouds: [
+  //   {
+  //     title: "Capture",
+  //     icon: CameraIcon,
+  //     isActive: true,
+  //     url: "#",
+  //     items: [
+  //       {
+  //         title: "Active Proposals",
+  //         url: "#",
+  //       },
+  //       {
+  //         title: "Archived",
+  //         url: "#",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     title: "Proposal",
+  //     icon: FileTextIcon,
+  //     url: "#",
+  //     items: [
+  //       {
+  //         title: "Active Proposals",
+  //         url: "#",
+  //       },
+  //       {
+  //         title: "Archived",
+  //         url: "#",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     title: "Prompts",
+  //     icon: FileCodeIcon,
+  //     url: "#",
+  //     items: [
+  //       {
+  //         title: "Active Proposals",
+  //         url: "#",
+  //       },
+  //       {
+  //         title: "Archived",
+  //         url: "#",
+  //       },
+  //     ],
+  //   },
+  // ],
   navSecondary: [
     {
       title: "Settings",
@@ -123,51 +123,51 @@ const data = {
       url: "#",
       icon: HelpCircleIcon,
     },
-    {
-      title: "Search",
-      url: "#",
-      icon: SearchIcon,
-    },
   ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: DatabaseIcon,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: ClipboardListIcon,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: FileIcon,
-    },
-  ],
+  // documents: [
+  //   {
+  //     name: "Data Library",
+  //     url: "#",
+  //     icon: DatabaseIcon,
+  //   },
+  //   {
+  //     name: "Reports",
+  //     url: "#",
+  //     icon: ClipboardListIcon,
+  //   },
+  //   {
+  //     name: "Word Assistant",
+  //     url: "#",
+  //     icon: FileIcon,
+  //   },
+  // ],
 }
 
 export function AppSidebar({
   ...props
 }) {
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar variant="floating" collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
+
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
               <a href="#">
                 <ArrowUpCircleIcon className="h-5 w-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <span className="text-base font-semibold">Nomadic</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
+
         </SidebarMenu>
       </SidebarHeader>
+
+
+
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
+        {/* <NavDocuments items={data.documents} /> */}
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
