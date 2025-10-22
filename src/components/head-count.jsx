@@ -1,41 +1,48 @@
-import { useState } from "react"
+// This file is now fixed
 import {
   MinusIcon,
   PlusIcon,
-  Volume1Icon,
-  Volume2Icon,
-  VolumeIcon,
-  VolumeXIcon,
-  UserIcon,     // 1 person
-  UsersIcon,    // 2 people
-  UserXIcon,    // 0 people
-  UserPlusIcon, // 3+ people (or "add more")
-} from "lucide-react"
+  UserIcon,
+  UsersIcon,
+  UserXIcon,
+  UserPlusIcon,
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
+// STEP 1: Correct imports
+import { useSelector, useDispatch } from "react-redux";
+import { setHeadCount } from "@/form-filter/filterSlice"; // <-- Make sure this path is correct!
 
 export default function HeadCount() {
-  const [userHeadCount, setUserHeadCount] = useState(1) // Initialize user head count state (0-9)
+  // STEP 2: Initialize dispatch
+  const dispatch = useDispatch();
 
-  const decreaseHeadCount = () => setUserHeadCount((prev) => Math.max(0, prev - 1))
-  const increaseHeadCount = () => setUserHeadCount((prev) => Math.min(20, prev + 1))
+  // STEP 2: Fix useSelector
+  const userHeadCount = useSelector((state) => state.filter.headCount);
 
+  // These functions are now correct
+  const decreaseHeadCount = () => dispatch(setHeadCount(Math.max(0, userHeadCount - 1)));
+  const increaseHeadCount = () => dispatch(setHeadCount(Math.min(20, userHeadCount + 1)));
+
+  // This logic was already perfect
   const Icon =
     userHeadCount === 0
-      ? UserXIcon     // 0 users
+      ? UserXIcon
       : userHeadCount === 1
-        ? UserIcon    // 1 user
+        ? UserIcon
         : userHeadCount === 2
-          ? UsersIcon   // 2 users
-          : UserPlusIcon  // 3 or more users
+          ? UsersIcon
+          : UserPlusIcon;
 
   return (
     <div
       className="inline-flex items-center"
       role="group"
-      aria-labelledby="volume-control">
-      <span id="volume-control" className="sr-only">
-        Volume Control
+      // STEP 3: Fix accessibility label
+      aria-labelledby="headcount-control"
+    >
+      <span id="headcount-control" className="sr-only">
+        Headcount Control
       </span>
       <Button
         className="rounded-full"
@@ -43,14 +50,20 @@ export default function HeadCount() {
         size="icon"
         aria-label="Decrease user head count"
         onClick={decreaseHeadCount}
-        disabled={userHeadCount === 1}>
+        // STEP 3: Fix disabled logic
+        disabled={userHeadCount === 0}
+      >
         <MinusIcon size={16} aria-hidden="true" />
       </Button>
       <div
         className="flex items-center px-3 text-sm font-medium tabular-nums"
-        aria-live="polite">
+        aria-live="polite"
+      >
         <Icon className="opacity-60" size={16} aria-hidden="true" />
-        <span className="ms-2" aria-label={`Current user head count is ${userHeadCount}`}>
+        <span
+          className="ms-2"
+          aria-label={`Current user head count is ${userHeadCount}`}
+        >
           {userHeadCount}
         </span>
       </div>
@@ -59,7 +72,10 @@ export default function HeadCount() {
         variant="outline"
         size="icon"
         aria-label="Increase user head count"
-        onClick={increaseHeadCount}>
+        onClick={increaseHeadCount}
+        // STEP 3: Add disabled logic for max value
+        disabled={userHeadCount === 20}
+      >
         <PlusIcon size={16} aria-hidden="true" />
       </Button>
     </div>
