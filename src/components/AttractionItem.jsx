@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useRef } from "react"
 import {
     Popover,
     PopoverContent,
@@ -16,17 +16,23 @@ export const AttractionItem = ({
     isDragging = false
 }) => {
     const [open, setOpen] = useState(false)
+    const hoverTimeoutRef = useRef(null)
 
     const handleMouseEnter = () => {
         if (!isDragging) {
-            setOpen(true)
+            hoverTimeoutRef.current = setTimeout(() => {
+                setOpen(true)
+            }, 500)
         }
     }
 
     const handleMouseLeave = () => {
-        if (!isDragging) {
-            setOpen(false)
+        if (hoverTimeoutRef.current) {
+            clearTimeout(hoverTimeoutRef.current)
+            hoverTimeoutRef.current = null
         }
+        setOpen(false)
+
     }
 
     return (
@@ -37,7 +43,7 @@ export const AttractionItem = ({
         }}>
             <PopoverTrigger asChild>
                 <div
-                    className="grid grid-cols-12 items-center gap-2 p-1 border-b last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors " 
+                    className="grid grid-cols-12 items-center gap-2 p-1 border-b last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors "
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
                     style={{
@@ -54,8 +60,8 @@ export const AttractionItem = ({
                     </div>
 
                     {/* Column 2: Text Content (spans 9 of 12 columns) */}
-                    <div className="col-span-8 min-w-0"> 
-                        <p className="font-medium text-sm truncate text-right">{title}</p> 
+                    <div className="col-span-8 min-w-0">
+                        <p className="font-medium text-sm truncate text-right">{title}</p>
                         <p className="text-xs text-gray-500 text-right">{duration}</p>
                     </div>
                 </div>

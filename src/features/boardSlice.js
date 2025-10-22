@@ -2,6 +2,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 // import arrayMove utility to reorder arrays immutably
 import { arrayMove } from '@dnd-kit/sortable'
+import { addDays, formatISO, parseISO } from 'date-fns'
+
+
+const baseDate = new Date() // default base
 
 /**
  * Redux slice for Kanban-style boards.
@@ -32,31 +36,37 @@ const initialState = {
         board1: {
             id: 'board1',
             title: 'Board One',
+            date: formatISO(baseDate),
             items: ['item-1'],
         },
         board2: {
             id: 'board2',
             title: 'Board Two',
+            date: formatISO(addDays(baseDate, 1)),
             items: ['item-4'],
         },
         board3: {
             id: 'board3',
             title: 'Board Three',
+            date: formatISO(addDays(baseDate, 2)),
             items: ['item-7'],
         },
         board4: {
             id: 'board4',
             title: 'Board Four',
+            date: formatISO(addDays(baseDate, 3)),
             items: ['item-10'],
         },
         board5: {
             id: 'board5',
             title: 'Board Five',
+            date: formatISO(addDays(baseDate, 4)),
             items: ['item-13'],
         },
         board6: {
             id: 'board6',
             title: 'Board Six',
+            date: formatISO(addDays(baseDate, 5)),
             items: ['item-16'],
         },
 
@@ -71,6 +81,73 @@ const boardsSlice = createSlice({
     name: 'boards',
     initialState,
     reducers: {
+
+        /**
+         * Set every board's date such that board at boardOrder[i] receives baseDate + i days
+         * Payload: { baseDateISO: string }   // ISO string representation
+         */
+        setBoardDatesFromBase: (state, action) => {
+            const baseDateISO = action.payload
+            // iterate through boardOrder and set date for each board
+            for (let i = 0; i < state.boardOrder.length; i++) {
+                const boardId = state.boardOrder[i]
+                // compute date for this board: baseDate + i
+                // We store the string; parent will format for display
+                const d = new Date(baseDateISO)
+                d.setDate(d.getDate() + i)
+                state.boards[boardId].date = d.toISOString()
+            }
+        },
+
+        /**
+     * Optionally, an action to update a single board's date directly:
+     * Payload: { boardId, dateISO }
+     */
+        setBoardDate: (state, action) => {
+            const { boardId, dateISO } = action.payload
+            if (state.boards[boardId]) {
+                state.boards[boardId].date = dateISO
+            }
+        },
+
+
+        /**
+         * Adds a new empty board to the state with a unique id.
+         * The new board has no items and a default title.
+         */
+
+        addEmptyBoard: (state) => {
+            const newId = `board-${Date.now()}`
+            const boardOrder = state.boardOrder
+            const boards = state.boards
+
+            // Default date = today if no boards exist
+            let newDate = new Date().toISOString()
+
+            if (boardOrder.length > 0) {
+                const lastBoardId = boardOrder[boardOrder.length - 1]
+                const lastBoard = boards[lastBoardId]
+
+                if (lastBoard && lastBoard.date) {
+                    // Parse and add 1 day
+                    const nextDay = addDays(parseISO(lastBoard.date), 1)
+                    newDate = nextDay.toISOString()
+                }
+            }
+
+            const newBoard = {
+                id: newId,
+                items: [],
+                date: newDate,
+                title: `Day ${boardOrder.length + 1}`,
+            }
+
+            // Add to state
+            state.boards[newId] = newBoard
+            state.boardOrder.push(newId)
+        },
+
+
         /**
          * Reorder items within the same board.
          * Payload: { boardId, oldIndex, newIndex }
@@ -133,8 +210,27 @@ const boardsSlice = createSlice({
         // reorder boards themselves by moving a board id in boardOrder
         moveBoard: (state, action) => {
             const { oldIndex, newIndex } = action.payload
-            // replace boardOrder with a reordered copy
-            state.boardOrder = arrayMove(state.boardOrder, oldIndex, newIndex)
+
+            // 1) Snapshot current order and the dates at each position
+            const oldOrder = state.boardOrder.slice()
+            const datesByPos = oldOrder.map((id) => state.boards[id]?.date ?? null)
+
+            // 2) Compute the new order (cards moved, positions stay)
+            const newOrder = arrayMove(oldOrder, oldIndex, newIndex)
+
+            // 3) Commit the new order
+            state.boardOrder = newOrder
+
+            // 4) Reassign dates so that positions keep their original dates
+            //    i.e., date at position i is given to the board now at position i
+            for (let i = 0; i < newOrder.length; i++) {
+                const boardId = newOrder[i]
+                const dateForThisPosition = datesByPos[i]
+                if (boardId && dateForThisPosition != null && state.boards[boardId]) {
+                    state.boards[boardId].date = dateForThisPosition
+                }
+            }
+
         },
 
 
@@ -170,6 +266,7 @@ const boardsSlice = createSlice({
     },
 })
 // export the generated action creators and reducer
-export const { moveItemWithinBoard, moveItemAcrossBoards, moveBoard, addKanbanBoard, removeKanbanBoard } = boardsSlice.actions
+export const { moveItemWithinBoard, moveItemAcrossBoards, moveBoard, addKanbanBoard, removeKanbanBoard, setBoardDatesFromBase,
+    setBoardDate, addEmptyBoard } = boardsSlice.actions
 export default boardsSlice.reducer
 
