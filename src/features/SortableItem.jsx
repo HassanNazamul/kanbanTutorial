@@ -4,7 +4,7 @@ import { useSortable, defaultAnimateLayoutChanges } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { AttractionItem } from '@/components/AttractionItem'
 import { useSelector } from 'react-redux'
-import { Card } from '@/components/ui/card'
+import { Card } from '@/components/ui/Card'
 
 export default function SortableItem({ id, boardId, isAnyDragging }) {
     const item = useSelector((state) => state.boards.itemsById[id])
