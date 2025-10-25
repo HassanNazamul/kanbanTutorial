@@ -76,3 +76,7 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+* {
+  outline: 2px solid red;
+}

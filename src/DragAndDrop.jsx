@@ -9,6 +9,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import HorizontalCalendar from './calendar/HorizontalCalender'
 import { parseISO } from 'date-fns'
 import { PlaceholderAttractionCard } from './components/PlaceholderAttractionCard'
+import { Card } from './components/ui/card'
 
 function DragAndDrop() {
 
@@ -221,7 +222,7 @@ function DragAndDrop() {
   }
 
   return (
-    <div style={{ padding: 10 }}>
+    <Card>
 
       <HorizontalCalendar
         ref={calendarRef}
@@ -232,21 +233,6 @@ function DragAndDrop() {
         suppressScrollRef={suppressSyncRef}
       />
 
-      {/* <div className="flex items-center gap-2 my-4">
-        <button
-          onClick={() => calendarRef.current?.scrollByOffset(-1)}
-          className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 transition"
-        >
-          ← Prev
-        </button>
-
-        <button
-          onClick={() => calendarRef.current?.scrollByOffset(1)}
-          className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 transition"
-        >
-          Next →
-        </button>
-      </div> */}
 
       <DndContext
         collisionDetection={rectIntersection}
@@ -266,7 +252,6 @@ function DragAndDrop() {
             // This is the crucial part to prevent drag conflicts!
             watchDrag: activeId === null,
           }}
-          className="w-full"
           orientation="horizontal"
         >
           <CarouselContent className="-ml-4"> {/* Negative margin to align items correctly */}
@@ -311,7 +296,7 @@ function DragAndDrop() {
           ) : null}
         </DragOverlay>
       </DndContext>
-    </div>
+    </Card>
   )
 }
 

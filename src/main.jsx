@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router'
 import DragAndDrop from './DragAndDrop.jsx'
 import Dashboard from './dashboards/Dashboard'
 import Dashboard1 from './dashboards/Dashboard1'
+import Page from './dashboards/Dashboard2.jsx'
 import store from './app/store.js'
 import { Provider } from 'react-redux'
 
@@ -14,8 +15,9 @@ createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<DragAndDrop />} />
-        <Route path="/d" element={<Dashboard />} />
-        <Route path="/d1" element={<Dashboard1 />} />
+        <Route path="/d1" element={<Dashboard />} />
+        <Route path="/d2" element={<Dashboard1 />} />
+        <Route path="/d3" element={<Page />} />
       </Routes>
     </BrowserRouter>
   </Provider>

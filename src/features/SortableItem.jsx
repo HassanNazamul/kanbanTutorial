@@ -3,6 +3,7 @@ import { useState, useEffect } from "react"
 import { useSortable, defaultAnimateLayoutChanges } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { AttractionItem } from '@/components/AttractionItem'
+import { Card } from '@/components/ui/card'
 
 export default function SortableItem({ id, boardId, isAnyDragging }) {
     const {
@@ -32,15 +33,17 @@ export default function SortableItem({ id, boardId, isAnyDragging }) {
         cursor: isDragging ? 'grabbing' : 'grab',
         boxSizing: 'border-box',
         position: 'relative',
+        padding: '1px',
     }
 
     return (
-        <div
+        <Card
             ref={setNodeRef}
             {...attributes}
             {...listeners}
             style={{ ...style, touchAction: 'none' }}
             data-item-id={id}
+        
         >
             <AttractionItem
                 image="https://i.pinimg.com/736x/21/83/ab/2183ab07ff2e0e561e0e0738705d4343.jpg"
@@ -52,6 +55,6 @@ export default function SortableItem({ id, boardId, isAnyDragging }) {
                 title={id}
                 isDragging={isDragging || isAnyDragging}
             />
-        </div>
+        </Card>
     )
 }

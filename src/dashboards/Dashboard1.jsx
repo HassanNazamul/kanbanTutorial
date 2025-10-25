@@ -24,7 +24,6 @@ export default function Dashboard1() {
                         </div>
                     </div>
                 </div>
-                {/* <DragAndDrop /> */}
                 <TemplateBoardList />
             </SidebarInset>
         </SidebarProvider>
