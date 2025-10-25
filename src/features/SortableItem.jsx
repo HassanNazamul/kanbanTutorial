@@ -3,9 +3,12 @@ import { useState, useEffect } from "react"
 import { useSortable, defaultAnimateLayoutChanges } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { AttractionItem } from '@/components/AttractionItem'
+import { useSelector } from 'react-redux'
 import { Card } from '@/components/ui/card'
 
 export default function SortableItem({ id, boardId, isAnyDragging }) {
+    const item = useSelector((state) => state.boards.itemsById[id])
+
     const {
         attributes,
         listeners,
@@ -43,16 +46,16 @@ export default function SortableItem({ id, boardId, isAnyDragging }) {
             {...listeners}
             style={{ ...style, touchAction: 'none' }}
             data-item-id={id}
-        
+
         >
             <AttractionItem
-                image="https://i.pinimg.com/736x/21/83/ab/2183ab07ff2e0e561e0e0738705d4343.jpg"
-                duration="2 hours"
-                timeline="2 hours"
-                timeOfDay="Morning"
-                location="Old Town, Rome"
-                description="Explore one of Rome's most iconic landmarks, rich with ancient history and classical architecture dating back to the Roman Empire."
-                title={id}
+                image={item?.image || 'https://i.pinimg.com/736x/21/83/ab/2183ab07ff2e0e561e0e0738705d4343.jpg'}
+                title={item?.title || 'Attraction'}
+                duration={item?.duration || ''}
+                timeline={item?.timeline || ''}
+                timeOfDay={item?.timeOfDay || ''}
+                location={item?.location || ''}
+                description={item?.description || ''}
                 isDragging={isDragging || isAnyDragging}
             />
         </Card>

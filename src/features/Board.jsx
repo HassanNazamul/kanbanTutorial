@@ -1,14 +1,18 @@
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { useDroppable } from '@dnd-kit/core'
 import SortableItem from './SortableItem'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { reserveBoardToTemplate } from '@/newLIstBoardFeature/thunk'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { GripHorizontal, Trash2 } from 'lucide-react'
 import { parseISO, format } from 'date-fns'
+import { CardEditDialog } from '@/components/CardEditDialog'
+import { useState } from 'react'
 
 export default function Board({ board, isAnyDragging, suppressSyncRef }) {
     const dispatch = useDispatch()
+
+    const [editOpen, setEditOpen] = useState(false)
 
     const {
         attributes,
@@ -44,6 +48,7 @@ export default function Board({ board, isAnyDragging, suppressSyncRef }) {
 
     const boardDateDisplay = board?.date ? format(parseISO(board.date), 'MMM d, yyyy') : ''
 
+
     return (
 
         <Card ref={setNodeRef}
@@ -52,7 +57,7 @@ export default function Board({ board, isAnyDragging, suppressSyncRef }) {
 
 
             {/* --- HEADER SECTION (With Drag Handle and Button) --- */}
-            <CardHeader className="flex justify-between items-center px-3">
+            <div className="flex justify-between items-center px-3">
                 {/* Drag Handle */}
                 <div
                     {...attributes}
@@ -78,37 +83,40 @@ export default function Board({ board, isAnyDragging, suppressSyncRef }) {
                 </button>
 
 
-            </CardHeader>
+            </div>
 
 
             {/* Main Image */}
-            <div className="h-20 w-full rounded-t-2xl overflow-hidden">
+            <button
+                type="button"
+                className="h-20 w-full rounded-t-2xl overflow-hidden focus:outline-none"
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={() => setEditOpen(true)}
+            >
                 <img
                     src="https://images.unsplash.com/photo-1600585152220-90363fe7e115?q=80&w=1000&auto=format&fit=crop"
                     alt="Hotel"
                     className="h-full w-full object-cover"
                 />
-            </div>
+            </button>
 
-            {/* Content */}
             <CardContent className="p-1">
-                {/* Header */}
-                <h5 className="font-semibold text-gray-700 text-xs text-center">Attraction Timeline</h5>
-
-                {/* Items */}
-                <div className="divide-y flex-1 flex flex-col gap-2 rounded-md transition-all duration-200 ease-in-out relative border-dashed ${isOver 
-            ? 'border-[3px] border-blue-500 bg-blue-500/5' 
-            : 'border-2 border-transparent bg-transparent'
-        }"
-
-                    ref={setDroppableNodeRef}
-
+                {/* Small header also as trigger (optional) */}
+                <button
+                    type="button"
+                    className="font-semibold text-gray-700 text-xs text-center w-full py-1 hover:opacity-80 transition"
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={() => setEditOpen(true)}
                 >
-                    <SortableContext
-                        id={board.id}
-                        items={board.items}
-                        strategy={verticalListSortingStrategy}
-                    >
+                    Attraction Timeline
+                </button>
+
+                {/* ITEMS (not a trigger; still draggable) */}
+                <div
+                    className={`divide-y flex-1 flex flex-col gap-2 rounded-md transition-all duration-200 ease-in-out relative ${isOver ? 'border-[3px] border-dashed border-blue-500 bg-blue-500/5' : 'border-2 border-transparent'}`}
+                    ref={setDroppableNodeRef}
+                >
+                    <SortableContext id={board.id} items={board.items} strategy={verticalListSortingStrategy}>
                         {board.items.map((itemId) => (
                             <SortableItem
                                 key={itemId}
@@ -119,7 +127,6 @@ export default function Board({ board, isAnyDragging, suppressSyncRef }) {
                         ))}
                     </SortableContext>
 
-                    {/* --- EMPTY STATE --- */}
                     {board.items.length === 0 && (
                         <div className="text-center text-gray-500 text-sm italic py-3 px-3.5 border border-dashed border-gray-300 rounded-xl">
                             Drop items here
@@ -127,6 +134,10 @@ export default function Board({ board, isAnyDragging, suppressSyncRef }) {
                     )}
                 </div>
             </CardContent>
+
+            {/* The dialog now lives in its own component */}
+            <CardEditDialog open={editOpen} onOpenChange={setEditOpen} board={board} />
+
         </Card>
     )
 }

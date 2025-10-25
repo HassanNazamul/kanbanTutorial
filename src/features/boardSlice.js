@@ -1,5 +1,5 @@
 // import Redux Toolkit helper to create a slice with reducers and actions
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, nanoid } from '@reduxjs/toolkit'
 // import arrayMove utility to reorder arrays immutably
 import { arrayMove } from '@dnd-kit/sortable'
 import { addDays, formatISO, parseISO } from 'date-fns'
@@ -36,36 +36,42 @@ const initialState = {
         board1: {
             id: 'board1',
             title: 'Board One',
+            hotelName: 'Sample Hotel',
             date: formatISO(baseDate),
             items: ['item-1'],
         },
         board2: {
             id: 'board2',
             title: 'Board Two',
+            hotelName: 'Sample Hotel',
             date: formatISO(addDays(baseDate, 1)),
             items: ['item-4'],
         },
         board3: {
             id: 'board3',
             title: 'Board Three',
+            hotelName: 'Sample Hotel',
             date: formatISO(addDays(baseDate, 2)),
             items: ['item-7'],
         },
         board4: {
             id: 'board4',
             title: 'Board Four',
+            hotelName: 'Sample Hotel',
             date: formatISO(addDays(baseDate, 3)),
             items: ['item-10'],
         },
         board5: {
             id: 'board5',
             title: 'Board Five',
+            hotelName: 'Sample Hotel',
             date: formatISO(addDays(baseDate, 4)),
             items: ['item-13'],
         },
         board6: {
             id: 'board6',
             title: 'Board Six',
+            hotelName: 'Sample Hotel',
             date: formatISO(addDays(baseDate, 5)),
             items: ['item-16'],
         },
@@ -73,6 +79,15 @@ const initialState = {
     },
     // array that defines the visual/order of boards
     boardOrder: ['board1', 'board2', 'board3', 'board4', 'board5', 'board6'],
+
+    itemsById: {
+        'item-1': { id: 'item-1', image: 'https://i.pinimg.com/736x/21/83/ab/2183ab07ff2e0e561e0e0738705d4343.jpg', title: 'Sample 1', duration: '2 hours', timeline: '2 hours', timeOfDay: 'Morning', location: 'Old Town, Rome', description: "Explore one of Rome's most iconic landmarks, rich with ancient history and classical architecture dating back to the Roman Empire." },
+        'item-4': { id: 'item-4', image: 'https://i.pinimg.com/736x/21/83/ab/2183ab07ff2e0e561e0e0738705d4343.jpg', title: 'Sample 4', duration: '3 hours', timeline: '2 hours', timeOfDay: 'Afternoon', location: 'Paris, France', description: "Explore one of Rome's most iconic landmarks, rich with ancient history and classical architecture dating back to the Roman Empire." },
+        'item-7': { id: 'item-7', image: 'https://i.pinimg.com/736x/21/83/ab/2183ab07ff2e0e561e0e0738705d4343.jpg', title: 'Sample 7', duration: '4 hours', timeline: '2 hours', timeOfDay: 'Morning', location: 'Dubai, UAE', description: "Explore one of Rome's most iconic landmarks, rich with ancient history and classical architecture dating back to the Roman Empire." },
+        'item-10': { id: 'item-10', image: 'https://i.pinimg.com/736x/21/83/ab/2183ab07ff2e0e561e0e0738705d4343.jpg', title: 'Sample 10', duration: '1.5 hours', timeline: '2 hours', timeOfDay: 'Morning', location: 'Tornoto, Canada', description: "Explore one of Rome's most iconic landmarks, rich with ancient history and classical architecture dating back to the Roman Empire." },
+        'item-13': { id: 'item-13', image: 'https://i.pinimg.com/736x/21/83/ab/2183ab07ff2e0e561e0e0738705d4343.jpg', title: 'Sample 13', duration: '1 hours', timeline: '2 hours', timeOfDay: 'Afternoon', location: 'Mississauga, Canada', description: "Explore one of Rome's most iconic landmarks, rich with ancient history and classical architecture dating back to the Roman Empire." },
+        'item-16': { id: 'item-16', image: 'https://i.pinimg.com/736x/21/83/ab/2183ab07ff2e0e561e0e0738705d4343.jpg', title: 'Sample 16', duration: '3 hours', timeline: '2 hours', timeOfDay: 'Evening', location: 'Texas, USA', description: "Explore one of Rome's most iconic landmarks, rich with ancient history and classical architecture dating back to the Roman Empire." },
+    },
 }
 
 
@@ -253,20 +268,69 @@ const boardsSlice = createSlice({
          * Payload: { boardId }
          */
         removeKanbanBoard: (state, action) => {
-            const boardId = action.payload; // Payload is the board ID (string)
+            const boardId = action.payload; // string
 
-            // 1. Remove the board data object from the dictionary
-            //    Immer allows us to use 'delete' on the draft state
+            // Find index BEFORE mutating order
+            const removedIndex = state.boardOrder.indexOf(boardId);
+            if (removedIndex === -1) return; // not found; nothing to do
+
+            // 1) Remove the board data
             delete state.boards[boardId];
 
-            // 2. Remove the board ID from the ordered array
-            //    We create a new array without the matching ID
-            state.boardOrder = state.boardOrder.filter(id => id !== boardId);
+            // 2) Compute the new order (without the removed board)
+            const newOrder = state.boardOrder.filter(id => id !== boardId);
+
+            // 3) Shift dates back by 1 day for all boards that were AFTER the removed one
+            for (let i = removedIndex; i < newOrder.length; i++) {
+                const id = newOrder[i];
+                const b = state.boards[id];
+                if (b?.date) {
+                    b.date = addDays(parseISO(b.date), -1).toISOString();
+                }
+            }
+
+            // 4) Commit new order
+            state.boardOrder = newOrder;
+        },
+
+        updateBoardHotelName: (state, action) => {
+            const { boardId, hotelName } = action.payload
+            if (state.boards[boardId]) {
+                state.boards[boardId].hotelName = hotelName
+            }
+        },
+
+        addAttractionToBoard: (state, action) => {
+            const { boardId, item } = action.payload
+            const board = state.boards[boardId]
+            if (!board) return
+            const id = nanoid()
+            state.itemsById[id] = {
+                id,
+                image: item.image || 'https://i.pinimg.com/736x/21/83/ab/2183ab07ff2e0e561e0e0738705d4343.jpg',
+                title: item.title || '',
+                duration: item.duration || '',
+                timeline: item.timeline || '',
+                timeOfDay: item.timeOfDay || '',
+                location: item.location || '',
+                description: item.description || '',
+            }
+            board.items.push(id)
+        },
+
+        updateAttractionItem: (state, action) => {
+            const { itemId, updatedFields } = action.payload
+            if (state.itemsById[itemId]) {
+                state.itemsById[itemId] = {
+                    ...state.itemsById[itemId],
+                    ...updatedFields
+                }
+            }
         },
     },
 })
 // export the generated action creators and reducer
 export const { moveItemWithinBoard, moveItemAcrossBoards, moveBoard, addKanbanBoard, removeKanbanBoard, setBoardDatesFromBase,
-    setBoardDate, addEmptyBoard } = boardsSlice.actions
+    setBoardDate, addEmptyBoard, updateBoardHotelName, addAttractionToBoard, updateAttractionItem } = boardsSlice.actions
 export default boardsSlice.reducer
 
